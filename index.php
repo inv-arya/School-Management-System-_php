@@ -2,6 +2,9 @@
 session_start();
 include 'inc/db.php';
 
+date_default_timezone_set('Asia/Kolkata');
+$conn->query("SET time_zone = '+05:30'");
+
 $error = '';
 $username = 'admin';
 $password = 'admin';
@@ -22,9 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($row) {
         $last_attempt = new DateTime($row['last_attempt']);
         $interval = $current_time->getTimestamp() - $last_attempt->getTimestamp();
-        if ($row['attempts'] >= 3 && $interval < 300) {
-            $lockout = true;
-            $error = "Too many attempts. Try again after 5 minutes.";
+        if ($row['attempts'] >= 3) {
+            if ($interval < 300) {
+                $lockout = true;
+                $remaining = 300 - $interval;
+                $minutes = floor($remaining / 60);
+                $seconds = $remaining % 60;
+                $error = "Too many attempts. Try again after {$minutes}m {$seconds}s.";
+            } else {
+                // Lockout expired - reset attempts
+                $conn->query("DELETE FROM login_attempts WHERE username = '$input_user'");
+                $row = null; // treat next login as fresh
+            }
         }
     }
 
