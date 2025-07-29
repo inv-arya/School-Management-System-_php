@@ -22,17 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($row) {
         $last_attempt = new DateTime($row['last_attempt']);
         $interval = $current_time->getTimestamp() - $last_attempt->getTimestamp();
+
         if ($row['attempts'] >= 3 && $interval < 300) {
+            $remaining = 300 - $interval;
+            $minutes = floor($remaining / 60);
+            $seconds = $remaining % 60;
             $lockout = true;
-            $error = "Too many attempts. Try again after 5 minutes.";
+            $error = "Too many attempts. Try again in {$minutes}m {$seconds}s.";
+        } elseif ($row['attempts'] >= 3 && $interval >= 300) {
+            // Reset lockout after 5 minutes
+            $conn->query("DELETE FROM login_attempts WHERE username = '$input_user'");
         }
     }
 
     if (!$lockout) {
         if ($input_user === $username && $input_pass === $password) {
             $_SESSION['admin_logged_in'] = true;
-
-            // reset login attempts
             $conn->query("DELETE FROM login_attempts WHERE username = '$input_user'");
             header("Location: register_student.php");
             exit();
@@ -53,13 +58,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<h2>Login</h2>
-<form method="POST">
-    Username: <input type="text" name="username" required><br><br>
-    Password: <input type="password" name="password" required><br><br>
-    <input type="submit" value="Login">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - School Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container mt-5" style="max-width: 400px;">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title text-center mb-4">Admin Login</h3>
+        
+        <?php if ($error): ?>
+          <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-<?php if ($error): ?>
-<p style="color:red"><?= htmlspecialchars($error) ?></p>
-<?php endif; ?>
+        <form method="POST">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" required autofocus>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

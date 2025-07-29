@@ -51,52 +51,136 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<h2>Register Student</h2>
-<form method="POST">
-    Name: <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required><br>
-    <?php if (isset($errors['name'])) echo "<span style='color:red'>{$errors['name']}</span><br>"; ?>
-    <br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register Student - School Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+  <div class="container mt-5" style="max-width: 480px;">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title mb-4 text-center">Register Student</h3>
 
-    Reg. No: <input type="text" name="registration_no" value="<?= htmlspecialchars($reg) ?>" required><br>
-    <?php if (isset($errors['registration_no'])) echo "<span style='color:red'>{$errors['registration_no']}</span><br>"; ?>
-    <br>
+        <?php if ($success): ?>
+          <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
 
-    Age: <input type="number" name="age" min="18" max="25" value="<?= htmlspecialchars($age) ?>" required><br>
-    <?php if (isset($errors['age'])) echo "<span style='color:red'>{$errors['age']}</span><br>"; ?>
-    <br>
+        <?php if (isset($errors['db'])): ?>
+          <div class="alert alert-danger"><?= htmlspecialchars($errors['db']) ?></div>
+        <?php endif; ?>
 
-    Email: <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required><br>
-    <?php if (isset($errors['email'])) echo "<span style='color:red'>{$errors['email']}</span><br>"; ?>
-    <br>
+        <form method="POST" novalidate>
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>"
+              value="<?= htmlspecialchars($name) ?>"
+              required
+            />
+            <?php if (isset($errors['name'])): ?>
+              <div class="invalid-feedback"><?= $errors['name'] ?></div>
+            <?php endif; ?>
+          </div>
 
-    Phone: <input type="text" name="phone" maxlength="10" value="<?= htmlspecialchars($phone) ?>" required><br>
-    <?php if (isset($errors['phone'])) echo "<span style='color:red'>{$errors['phone']}</span><br>"; ?>
-    <br>
+          <div class="mb-3">
+            <label for="registration_no" class="form-label">Registration No.</label>
+            <input
+              type="text"
+              name="registration_no"
+              id="registration_no"
+              class="form-control <?= isset($errors['registration_no']) ? 'is-invalid' : '' ?>"
+              value="<?= htmlspecialchars($reg) ?>"
+              required
+            />
+            <?php if (isset($errors['registration_no'])): ?>
+              <div class="invalid-feedback"><?= $errors['registration_no'] ?></div>
+            <?php endif; ?>
+          </div>
 
-    Course:
-    <select name="course" required>
-        <option value="">--Select--</option>
-        <option value="BCA" <?= $course === 'BCA' ? 'selected' : '' ?>>BCA</option><br>
-        <option value="BBA" <?= $course === 'BBA' ? 'selected' : '' ?>>BBA</option><br>
-        <option value="B.Sc" <?= $course === 'B.Sc' ? 'selected' : '' ?>>B.Sc</option><br>
-        <option value="MBA" <?= $course === 'MBA' ? 'selected' : '' ?>>MBA</option><br>
-    </select><br>
-    <?php if (isset($errors['course'])) echo "<span style='color:red'>{$errors['course']}</span><br>"; ?>
-    <br>
+          <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input
+              type="number"
+              name="age"
+              id="age"
+              class="form-control <?= isset($errors['age']) ? 'is-invalid' : '' ?>"
+              value="<?= htmlspecialchars($age) ?>"
+              min="18"
+              max="25"
+              required
+            />
+            <?php if (isset($errors['age'])): ?>
+              <div class="invalid-feedback"><?= $errors['age'] ?></div>
+            <?php endif; ?>
+          </div>
 
-    <input type="submit" value="Register">
-</form>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              class="form-control <?= isset($errors['email']) ? 'is-invalid' : '' ?>"
+              value="<?= htmlspecialchars($email) ?>"
+              required
+            />
+            <?php if (isset($errors['email'])): ?>
+              <div class="invalid-feedback"><?= $errors['email'] ?></div>
+            <?php endif; ?>
+          </div>
 
-<?php
-if ($success) echo "<p style='color:green;'>$success</p>";
-if (isset($errors['db'])) echo "<p style='color:red;'>{$errors['db']}</p>";
-?>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input
+              type="text"
+              name="phone"
+              id="phone"
+              maxlength="10"
+              class="form-control <?= isset($errors['phone']) ? 'is-invalid' : '' ?>"
+              value="<?= htmlspecialchars($phone) ?>"
+              required
+            />
+            <?php if (isset($errors['phone'])): ?>
+              <div class="invalid-feedback"><?= $errors['phone'] ?></div>
+            <?php endif; ?>
+          </div>
 
-<!-- navbutton to logout and studenlist -->
-<a href="list_students.php" style="text-decoration:none;">
-  <button type="button">View Students</button>
-</a>
+          <div class="mb-4">
+            <label for="course" class="form-label">Course</label>
+            <select
+              name="course"
+              id="course"
+              class="form-select <?= isset($errors['course']) ? 'is-invalid' : '' ?>"
+              required
+            >
+              <option value="" <?= $course === '' ? 'selected' : '' ?>>--Select--</option>
+              <option value="BCA" <?= $course === 'BCA' ? 'selected' : '' ?>>BCA</option>
+              <option value="BBA" <?= $course === 'BBA' ? 'selected' : '' ?>>BBA</option>
+              <option value="B.Sc" <?= $course === 'B.Sc' ? 'selected' : '' ?>>B.Sc</option>
+              <option value="MBA" <?= $course === 'MBA' ? 'selected' : '' ?>>MBA</option>
+            </select>
+            <?php if (isset($errors['course'])): ?>
+              <div class="invalid-feedback"><?= $errors['course'] ?></div>
+            <?php endif; ?>
+          </div>
 
-<a href="logout.php" style="text-decoration:none;">
-  <button type="button">Logout</button>
-</a>
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary">Register</button>
+          </div>
+        </form>
+
+        <div class="d-flex justify-content-between">
+          <a href="list_students.php" class="btn btn-secondary">View Students</a>
+          <a href="logout.php" class="btn btn-danger">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
